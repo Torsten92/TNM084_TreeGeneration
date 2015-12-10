@@ -112,7 +112,7 @@ function onDocumentTouchStart( event ) {
 	}
 }
 
-
+/*
 function onDocumentTouchMove( event ) {
 	if ( event.touches.length === 1 ) {
 		event.preventDefault();
@@ -135,4 +135,4 @@ function onDocumentTouchMove( event ) {
 		
 		camera.updateMatrix();
 	}
-}
+}*/
