@@ -96,8 +96,21 @@ function onDocumentTouchStart( event ) {
 		onMouseDown.x = event.touches[ 0 ].pageX - windowHalfX;
 		onMouseDown.y = event.touches[ 0 ].pageY - windowHalfY;
 		
-		camTheta += 10;
-		camPhi = 0;
+		
+	}
+}
+
+
+function onDocumentTouchMove( event ) {
+	if ( event.touches.length === 1 ) {
+		event.preventDefault();
+
+		onMouseDownPosition.x = event.touches[ 0 ].pageX - windowHalfX;
+		onMouseDownPosition.y = event.touches[ 0 ].pageY - windowHalfY;
+		//targetRotation = targetRotationOnMouseDown + ( onMouseDownPosition.x - onMouseDown.x ) * 0.05;
+		
+		camTheta -= ( ( onMouseDownPosition.x - onMouseDown.x ) * 25.0 );
+		camPhi += ( ( onMouseDownPosition.y - onMouseDown.y ) * 25.0 );
 
 		camPhi = Math.min( 90, Math.max( 0, camPhi ) );
 		
@@ -111,28 +124,3 @@ function onDocumentTouchStart( event ) {
 		camera.updateMatrix();
 	}
 }
-
-/*
-function onDocumentTouchMove( event ) {
-	if ( event.touches.length === 1 ) {
-		event.preventDefault();
-
-		onMouseDownPosition.x = event.touches[ 0 ].pageX - windowHalfX;
-		onMouseDownPosition.y = event.touches[ 0 ].pageY - windowHalfY;
-		targetRotation = targetRotationOnMouseDown + ( onMouseDownPosition.x - onMouseDown.x ) * 0.05;
-		
-		camTheta -= ( ( onMouseDownPosition.x - onMouseDown.x ) * 0.5 );
-		camPhi += ( ( onMouseDownPosition.y - onMouseDown.y ) * 0.5 );
-
-		camPhi = Math.min( 90, Math.max( 0, camPhi ) );
-		
-		camera.rotation.y = camTheta * Math.PI / 180;
-		camera.rotation.x = -camPhi * Math.PI / 180;
-		
-		camera.position.x = camRadius * Math.sin( camTheta * Math.PI / 180 ) * Math.cos( camPhi * Math.PI / 180 );
-		camera.position.y = camRadius * Math.sin( camPhi * Math.PI / 180 );
-		camera.position.z = camRadius * Math.cos( camTheta * Math.PI / 180 ) * Math.cos( camPhi * Math.PI / 180 );
-		
-		camera.updateMatrix();
-	}
-}*/
