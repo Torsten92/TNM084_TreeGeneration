@@ -92,7 +92,7 @@ function onDocumentTouchStart( event ) {
 	if ( event.touches.length === 1 ) {
 		event.preventDefault();
 
-		theTree.iterate();
+		
 		onMouseDown.x = event.touches[ 0 ].pageX - windowHalfX;
 		onMouseDown.y = event.touches[ 0 ].pageY - windowHalfY;
 		
@@ -104,12 +104,12 @@ function onDocumentTouchStart( event ) {
 function onDocumentTouchMove( event ) {
 	if ( event.touches.length === 1 ) {
 		event.preventDefault();
-
+theTree.iterate();
 		onMouseDownPosition.x = event.touches[ 0 ].pageX - windowHalfX;
 		onMouseDownPosition.y = event.touches[ 0 ].pageY - windowHalfY;
 		//targetRotation = targetRotationOnMouseDown + ( onMouseDownPosition.x - onMouseDown.x ) * 0.05;
 		
-		camTheta -= ( ( onMouseDownPosition.x - onMouseDown.x ) * 25.0 );
+		camTheta -= ( 25.0 );
 		camPhi += ( ( onMouseDownPosition.y - onMouseDown.y ) * 25.0 );
 
 		camPhi = Math.min( 90, Math.max( 0, camPhi ) );
