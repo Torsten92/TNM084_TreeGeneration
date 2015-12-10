@@ -129,6 +129,7 @@ function handleMove(evt) {
 
 function handleEnd(evt) {
   evt.preventDefault();
+  theTree.iterate();
   var ctx = window.getContext("2d");
   var touches = evt.changedTouches;
 
