@@ -87,20 +87,15 @@ function onDocumentTouchStart( event ) {
 	if ( event.touches.length === 1 ) {
 		event.preventDefault();
 		
+		theTree.iterate();
+		
+		if(onMouseDownPosition.x) {
+			camTheta -= onMouseDownPosition.x - event.touches[ 0 ].pageX;
+			camPhi += onMouseDownPosition.y - event.touches[ 0 ].pageY;
+		}
+		
 		onMouseDownPosition.x = event.touches[ 0 ].pageX;
 		onMouseDownPosition.y = event.touches[ 0 ].pageY;
-	}
-}
-
-
-function onDocumentTouchEnd( event ) {
-	if ( event.touches.length === 1 ) {
-		event.preventDefault();
-		
-		theTree.iterate();
-
-		camTheta -= onMouseDownPosition.x - event.touches[ 0 ].pageX;
-		camPhi += onMouseDownPosition.y - event.touches[ 0 ].pageY;
 
 		camPhi = Math.min( 90, Math.max( 0, camPhi ) );
 		
