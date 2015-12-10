@@ -83,34 +83,24 @@ function onWindowResize( event ) {
 
 }
 
-
-var windowHalfX = window.innerWidth / 2;
-var windowHalfY = window.innerHeight / 2;
-var onMouseDown = new THREE.Vector2;
-
 function onDocumentTouchStart( event ) {
 	if ( event.touches.length === 1 ) {
 		event.preventDefault();
-
 		
-		onMouseDown.x = event.touches[ 0 ].pageX - windowHalfX;
-		onMouseDown.y = event.touches[ 0 ].pageY - windowHalfY;
-		
-		
+		onMouseDownPosition.x = event.touches[ 0 ].pageX;
+		onMouseDownPosition.y = event.touches[ 0 ].pageY;
 	}
 }
 
 
-function onDocumentTouchMove( event ) {
+function onDocumentTouchEnd( event ) {
 	if ( event.touches.length === 1 ) {
 		event.preventDefault();
-theTree.iterate();
-		onMouseDownPosition.x = event.touches[ 0 ].pageX - windowHalfX;
-		onMouseDownPosition.y = event.touches[ 0 ].pageY - windowHalfY;
-		//targetRotation = targetRotationOnMouseDown + ( onMouseDownPosition.x - onMouseDown.x ) * 0.05;
 		
-		camTheta -= ( 25.0 );
-		camPhi += ( ( onMouseDownPosition.y - onMouseDown.y ) * 25.0 );
+		theTree.iterate();
+
+		camTheta -= onMouseDownPosition.x - event.touches[ 0 ].pageX;
+		camPhi += onMouseDownPosition.y - event.touches[ 0 ].pageY;
 
 		camPhi = Math.min( 90, Math.max( 0, camPhi ) );
 		
