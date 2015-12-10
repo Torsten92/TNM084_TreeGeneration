@@ -89,8 +89,8 @@ function onDocumentTouchStart( event ) {
 		
 		theTree.iterate();
 
-		camTheta -= 0.01 * ( (screen.width / 2) - event.touches[ 0 ].pageX );
-		camPhi += 0.01 * ( (screen.height / 2) - event.touches[ 0 ].pageY );
+		camTheta -= 0.03 * ( (screen.width / 2) - event.touches[ 0 ].pageX );
+		camPhi += 0.03 * ( (screen.height / 2) - event.touches[ 0 ].pageY );
 
 		camPhi = Math.min( 90, Math.max( 0, camPhi ) );
 		

@@ -326,10 +326,7 @@
 			camera.eulerOrder = "YXZ";
 			
 			var renderer = new THREE.WebGLRenderer({ antialias: true });
-			if(window.innerHeight > 500)
-				renderer.setSize( window.innerWidth, window.innerHeight-10 );	//Desktop view
-			else
-				renderer.setSize( window.innerWidth, window.innerHeight );	//Mobile veiw
+			renderer.setSize( window.innerWidth, window.innerHeight-10 );
 			renderer.setClearColor( 0x505050 );
 			renderer.shadowMapEnabled = true;
 			renderer.shadowMapType = THREE.PCFSoftShadowMap;
