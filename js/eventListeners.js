@@ -107,7 +107,8 @@ function onDocumentTouchStart( event ) {
 		camera.position.x = camRadius * Math.sin( camTheta * Math.PI / 180 ) * Math.cos( camPhi * Math.PI / 180 );
 		camera.position.y = camRadius * Math.sin( camPhi * Math.PI / 180 );
 		camera.position.z = camRadius * Math.cos( camTheta * Math.PI / 180 ) * Math.cos( camPhi * Math.PI / 180 );
-
+		
+		camera.updateMatrix();
 	}
 }
 
