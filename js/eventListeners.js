@@ -106,8 +106,8 @@ function onDocumentTouchMove( event ) {
 		onMouseDownPosition.y = event.touches[ 0 ].pageY - windowHalfY;
 		targetRotation = targetRotationOnMouseDown + ( mouseX - mouseXOnMouseDown ) * 0.05;
 		
-		camTheta = - ( ( event.clientX - onMouseDownPosition.x ) * 0.5 ) + onMouseDownTheta;
-		camPhi = ( ( event.clientY - onMouseDownPosition.y ) * 0.5 ) + onMouseDownPhi;
+		camTheta = - ( ( onMouseDownPosition.x ) * 0.5 ) + onMouseDownTheta;
+		camPhi = ( ( onMouseDownPosition.y ) * 0.5 ) + onMouseDownPhi;
 
 		camPhi = Math.min( 90, Math.max( 0, camPhi ) );
 		
