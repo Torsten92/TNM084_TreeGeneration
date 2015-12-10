@@ -96,8 +96,8 @@ function onDocumentTouchStart( event ) {
 		onMouseDown.x = event.touches[ 0 ].pageX - windowHalfX;
 		onMouseDown.y = event.touches[ 0 ].pageY - windowHalfY;
 		
-		camTheta += 0.1;
-		camPhi += 0.01;
+		camTheta += 10;
+		camPhi = 0;
 
 		camPhi = Math.min( 90, Math.max( 0, camPhi ) );
 		
