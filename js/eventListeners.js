@@ -86,13 +86,18 @@ function onWindowResize( event ) {
 
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
+var onMouseDown = new THREE.Vector2;
 
 function onDocumentTouchStart( event ) {
 	if ( event.touches.length === 1 ) {
 		event.preventDefault();
 
-		mouseXOnMouseDown = event.touches[ 0 ].pageX - windowHalfX;
-		targetRotationOnMouseDown = targetRotation;
+		theTree.iterate();
+		onMouseDown.x = event.touches[ 0 ].pageX - windowHalfX;
+		onMouseDown.y = event.touches[ 0 ].pageY - windowHalfY;
+		
+		onMouseDownTheta = camTheta;
+		onMouseDownPhi = camPhi;
 
 	}
 }
@@ -104,10 +109,10 @@ function onDocumentTouchMove( event ) {
 
 		onMouseDownPosition.x = event.touches[ 0 ].pageX - windowHalfX;
 		onMouseDownPosition.y = event.touches[ 0 ].pageY - windowHalfY;
-		targetRotation = targetRotationOnMouseDown + ( mouseX - mouseXOnMouseDown ) * 0.05;
+		targetRotation = targetRotationOnMouseDown + ( onMouseDownPosition.x - onMouseDown.x ) * 0.05;
 		
-		camTheta = - ( ( onMouseDownPosition.x ) * 0.5 ) + onMouseDownTheta;
-		camPhi = ( ( onMouseDownPosition.y ) * 0.5 ) + onMouseDownPhi;
+		camTheta = - ( ( onMouseDownPosition.x - onMouseDown.x ) * 0.5 ) + onMouseDownTheta;
+		camPhi = ( ( onMouseDownPosition.x - onMouseDown.x ) * 0.5 ) + onMouseDownPhi;
 
 		camPhi = Math.min( 90, Math.max( 0, camPhi ) );
 		
