@@ -291,6 +291,7 @@
 			var n = 0;
 			var cylinders = []; //old stuff
 			var spawnTime = 0, iterateTime = 0, iterator = 0;
+			var numTrees = 0;
 			
 			function render() {			
 				
@@ -298,19 +299,22 @@
 				
 				
 				//iterate every 0.1 seconds
-				if(clock.getElapsedTime() - iterateTime > 3.0) {
-					iterateTime = 3.0*iterator++;
+				if(clock.getElapsedTime() - iterateTime > 0.2) {
+					iterateTime = 0.2*iterator++;
 					
 					//for(var i = 1; i < cylinders.length; i++) {
 					//	cylinders[i].updateGeometry(cylinders[i].height + 0.01, 0.05 * cylinders[i].height, 0.1 * cylinders[i].height, sceneHandler.scene);
 					//}
-					console.log("run");
+					theTree[numTrees].iterate();
+					//console.log("run");
 					//theTree.iterate();
 				}
 				
-
-				//console.log(n);
-				//alert(cylinder.mesh.geometry);
+				if(theTree[numTrees].finished) {
+					theTree[++numTrees] = new tree(0.2, 0.6, 0.7, Math.round(100+400*Math.random()), Math.round(100.0+150.0*Math.random())/100, new THREE.Vector3(Math.round(5.0-10.0*Math.random()),-2, Math.round(5.0-10.0*Math.random())), 3.0); 
+					sceneHandler.scene.add( theTree[numTrees].base );
+				}
+				
 				
 				renderer.render( sceneHandler.scene, camera );
 				stats.update();
@@ -357,14 +361,16 @@
 			});
 			
 			var plane = new THREE.Mesh( planeGeometry, shaderMaterial );
-			var theTree = new tree(0.2, 0.6, 0.7, 500, 2.5, new THREE.Vector3(0,-2, 0), 3.0); 
+			
+			var theTree = [];
+			theTree[numTrees] = new tree(0.2, 0.6, 0.7, 500, 2.5, new THREE.Vector3(0,-2, 0), 3.0); 
 			
 			
 			//Instantiate objects transformation
 			plane.position.y = -2;
 			plane.rotation.x = -Math.PI / 2;
 			camera.position.z = 5;
-			sceneHandler.scene.add( theTree.base );
+			sceneHandler.scene.add( theTree[numTrees].base );
 			sceneHandler.scene.add( plane );
 			
 			
@@ -381,7 +387,7 @@
 			
 			//Start the rendering loop
 			render();
-			//theTree.iterate();
+			
 			
 			//Add the necessary event listeners
 			window.addEventListener( 'mousemove', onDocumentMouseMove, false );
@@ -393,7 +399,7 @@
 			window.addEventListener( 'touchstart', onDocumentTouchStart, false );
 			
 			// *** Skybox code. It seems difficult to save this into a function/object so it will have to sit here for the time being. ***
-			
+				
 			var urls = [
 			  'textures/skybox/posx.png',
 			  'textures/skybox/negx.png',

@@ -102,21 +102,25 @@ tree.prototype.iterate = function() {
 			rotQ.setFromUnitVectors( new THREE.Vector3(0.0, 1.0, 0.0), newBranchDir );
 			this.branches[++this.numBranches] = new cylinderInstance(0.02, 0.02, this.D);
 			this.branches[this.numBranches].mesh.quaternion.multiply( rotQ );
-			this.branches[this.numBranches].mesh.position.copy(this.treeNodes[this.treeNodes.length-1]).sub(this.startPoint);
-			//this.branches[this.numBranches].mesh.position.sub(this.startPoint);
+			this.branches[this.numBranches].mesh.position.copy(this.treeNodes[this.treeNodes.length-1]).sub(this.startPoint).sub(newBranchDir.multiplyScalar(this.D/2));
 			this.base.add(this.branches[this.numBranches].mesh);
 			}
 	}
-	//Tree is either complete or wasn't able to start if we didn't find any new nodes
+	//If we didn't find any new nodes it means that the tree is either complete or it wasn't able to start
 	if(this.numNodes == this.treeNodes.length) {
-		if(this.treeNodes.length == 1)
-			this.treeNodes[0].y += this.D;
+		if(this.treeNodes.length == 1) {
+			this.treeNodes[0].y += this.D; //Move node upwards if it didn't start
+			
+			this.branches[++this.numBranches] = new cylinderInstance(0.02, 0.02, this.D);
+			this.branches[this.numBranches].mesh.position.copy(this.treeNodes[this.treeNodes.length-1]).sub(this.startPoint).sub(new THREE.Vector3(0.0,1.0,0.0).multiplyScalar(this.D/2));
+			this.base.add(this.branches[this.numBranches].mesh);
+		}
 		else
 			this.finished = true;
 	}
 	
 	this.numNodes = this.treeNodes.length;
-	console.log("numNodes numBranches aP.length = " + this.numNodes + " "+ this.numBranches + " " + this.attractionPoints.length + " " + this.finished);
+	//console.log("numNodes numBranches aP.length = " + this.numNodes + " "+ this.numBranches + " " + this.attractionPoints.length + " " + this.finished);
 	
 	//var rotQ = new THREE.Quaternion();
 	//rotQ.setFromAxisAngle( new THREE.Vector3( 1, 0, 0 ), 0.1 );
