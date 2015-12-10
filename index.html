@@ -354,7 +354,7 @@
 			});
 			
 			var plane = new THREE.Mesh( planeGeometry, shaderMaterial );
-			var theTree = new tree(0.3, 0.6, 1.0, 50, 2.0, new THREE.Vector3(0,-1, 0), 1.0); 
+			var theTree = new tree(0.2, 0.6, 0.7, 500, 2.5, new THREE.Vector3(0,-2, 0), 3.0); 
 			
 			
 			//Instantiate objects transformation
@@ -378,7 +378,7 @@
 			
 			//Start the rendering loop
 			render();
-			theTree.iterate();
+			//theTree.iterate();
 			
 			//Add the necessary event listeners
 			window.addEventListener( 'mousemove', onDocumentMouseMove, false );

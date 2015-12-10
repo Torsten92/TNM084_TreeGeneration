@@ -24,6 +24,7 @@ function tree(_D, _dk, _di, _N, _attractionRadius, _startPoint, _height) {
 	this.height = _height;
 	
 	this.base = new THREE.Object3D();
+	this.finished = false;
 	
 	//An array of cylinderInstances. Each element will represent a tree branch. numBranches represent the current amount of branches
 	this.branches = [];
@@ -36,7 +37,7 @@ function tree(_D, _dk, _di, _N, _attractionRadius, _startPoint, _height) {
 	this.treeNodes = [];
 	this.numNodes = 1;
 	
-	this.material = new THREE.MeshPhongMaterial( { color: 0xff0000, specular: 0x999999, shininess: 10, shading: THREE.FlatShading } );
+	//this.material = new THREE.MeshPhongMaterial( { color: 0xff0000, specular: 0x999999, shininess: 10, shading: THREE.FlatShading } );
 	
 	//Generate N attraction points in the space defined by startPosition, height and attractionRadius
 	for(var i = 0; i < this.N; i++) {
@@ -44,12 +45,12 @@ function tree(_D, _dk, _di, _N, _attractionRadius, _startPoint, _height) {
 		var theta = (Math.random() * Math.PI);
 		
 		this.attractionPoints[i] = new THREE.Vector3();
-		this.attractionPoints[i].x = this.startPoint.x + Math.random()*this.attractionRadius*Math.sin(theta)*Math.cos(phi);
-		this.attractionPoints[i].y = this.startPoint.y + this.height + Math.random()*this.attractionRadius*Math.cos(theta);
-		this.attractionPoints[i].z = this.startPoint.z + Math.random()*this.attractionRadius*Math.sin(theta)*Math.sin(phi);
+		this.attractionPoints[i].x = this.startPoint.x + this.attractionRadius * Math.random()*Math.sin(theta)*Math.cos(phi);
+		this.attractionPoints[i].y = this.startPoint.y + this.height + this.attractionRadius * Math.random()*Math.cos(theta);
+		this.attractionPoints[i].z = this.startPoint.z + this.attractionRadius * Math.random()*Math.sin(theta)*Math.sin(phi);
 	}
 	this.treeNodes[0] = new THREE.Vector3(_startPoint.x, _startPoint.y, _startPoint.z);
-	this.branches[0] = new cylinderInstance(0.02, 0.02, this.D);
+	this.branches[0] = new cylinderInstance(0.02, 0.02, this.D, this.startPoint, this.startPoint);
 	
 	this.base.position.copy(_startPoint);
 	this.base.add(this.branches[0].mesh);
@@ -57,25 +58,38 @@ function tree(_D, _dk, _di, _N, _attractionRadius, _startPoint, _height) {
 
 
 tree.prototype.iterate = function() {
+	if(this.finished)
+		return;
+	
+	//Remove nodes that get too close to each other
+	for(var i = 0; i < this.numNodes; i++) {
+		for(var j = this.numNodes-1; j > i; j--) {
+			var tempVector = new THREE.Vector3();
+			tempVector.subVectors(this.treeNodes[i], this.treeNodes[j]);
+			if(tempVector.length() < 0.75*this.D) {
+				this.treeNodes.splice(j, 1);
+				this.numNodes -= 1;
+				console.log("removed!");
+			}
+		}
+	}
+	this.numNodes = this.treeNodes.length;
 	
 	//Calculate new nodes for each current tree node and attraction point
 	for(var i = 0; i < this.numNodes; i++) {
 		var newBranchDir = new THREE.Vector3(0.0, 0.0, 0.0);
 		
-		//Loop backwards for removal of attraction points to work
+		//Loop backwards for removal of attraction points to work correctly
 		for(var j = this.attractionPoints.length-1; j >= 0; j--) {
 			var tempVector = new THREE.Vector3( (this.attractionPoints[j].x - this.treeNodes[i].x), 
 												(this.attractionPoints[j].y - this.treeNodes[i].y), 
 												(this.attractionPoints[j].z - this.treeNodes[i].z) );
-			console.log("tempVector length = " + tempVector.length());
 			if(tempVector.length() < this.di ) {
 				if(tempVector.length() < this.dk ) {
 					this.attractionPoints.splice(j, 1);
-					console.log("1 point removed");
 				}
 				
 				newBranchDir.add(tempVector.normalize());
-				console.log("1 point found");
 			}
 		}
 		//Keep going if we found any attraction points
@@ -87,12 +101,21 @@ tree.prototype.iterate = function() {
 			rotQ.setFromUnitVectors( new THREE.Vector3(0.0, 1.0, 0.0), newBranchDir );
 			this.branches[++this.numBranches] = new cylinderInstance(0.02, 0.02, this.D);
 			this.branches[this.numBranches].mesh.quaternion.multiply( rotQ );
-			this.branches[this.numBranches].mesh.position.copy(this.treeNodes[this.treeNodes.length-1]);
+			this.branches[this.numBranches].mesh.position.copy(this.treeNodes[this.treeNodes.length-1]).sub(this.startPoint);
+			//this.branches[this.numBranches].mesh.position.sub(this.startPoint);
 			this.base.add(this.branches[this.numBranches].mesh);
 			}
 	}
+	//Tree is either complete or wasn't able to start if we didn't find any new nodes
+	if(this.numNodes == this.treeNodes.length) {
+		if(this.treeNodes.length == 1)
+			this.treeNodes[0].y += this.D;
+		else
+			this.finished = true;
+	}
+	
 	this.numNodes = this.treeNodes.length;
-	console.log("numNodes numBranches aP.length = " + this.numNodes + " "+ this.numBranches + " " + this.attractionPoints.length);
+	console.log("numNodes numBranches aP.length = " + this.numNodes + " "+ this.numBranches + " " + this.attractionPoints.length + " " + this.finished);
 	
 	//var rotQ = new THREE.Quaternion();
 	//rotQ.setFromAxisAngle( new THREE.Vector3( 1, 0, 0 ), 0.1 );

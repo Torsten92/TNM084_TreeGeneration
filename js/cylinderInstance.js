@@ -1,7 +1,11 @@
+// innerRadius, outerRadius and height are floats. bottom and top are points describnig where the cylinder instance start and where it ends
 
-function cylinderInstance(_innerRadius, _outerRadius, _height) {
+
+function cylinderInstance(_innerRadius, _outerRadius, _height, _bottom, _top) {
 	this.innerRadius = _innerRadius;
 	this.outerRadius = _outerRadius;
+	this.bottom = _bottom;
+	this.top = _top;
 	this.height = _height;
 	//this.branches = null;
 	//this.material = _material;
