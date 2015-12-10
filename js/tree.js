@@ -1,5 +1,6 @@
 //
-// D, dk and di are floats. N is an int. attractionRadius is a float which defines the radius of a spawning sphere. startPoint is a THREE.vector3.
+// D, dk and di are floats. N is an int representing the amount of attraction points. attractionRadius is a float which defines the radius of a spawning sphere. 
+// startPoint is a THREE.vector3.
 // 
 // This function/object will spawn a tree at startPoint which will grow towards its attraction points. Its function iterate will creates the actual growth. 
 // The faster (calls per second) iterate is called, the faster the tree will grow.
