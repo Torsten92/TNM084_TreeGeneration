@@ -390,9 +390,8 @@
 			//window.addEventListener( 'mousewheel', onDocumentMouseWheel, false );		// IE9, Chrome, Safari, Opera
 			window.addEventListener( 'wheel', onDocumentMouseWheel, false );	// Firefox
 			window.addEventListener( 'resize', onWindowResize, false );
-			window.addEventListener('touchstart', handleStart, false);
-			document.addEventListener( 'touchstart', onDocumentTouchStart, false );
-			document.addEventListener( 'touchmove', onDocumentTouchMove, false );
+			window.addEventListener( 'touchstart', onDocumentTouchStart, false );
+			window.addEventListener( 'touchmove', onDocumentTouchMove, false );
 			
 			// *** Skybox code. It seems difficult to save this into a function/object so it will have to sit here for the time being. ***
 			
