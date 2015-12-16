@@ -299,19 +299,13 @@
 				
 				
 				//iterate every 0.1 seconds
-				if(clock.getElapsedTime() - iterateTime > 0.2) {
-					iterateTime = 0.2*iterator++;
-					
-					//for(var i = 1; i < cylinders.length; i++) {
-					//	cylinders[i].updateGeometry(cylinders[i].height + 0.01, 0.05 * cylinders[i].height, 0.1 * cylinders[i].height, sceneHandler.scene);
-					//}
-					theTree[numTrees].iterate();
-					//console.log("run");
-					//theTree.iterate();
+				if(clock.getElapsedTime() - iterateTime > 0.05) {
+					iterateTime = 0.05*iterator++;
+					theTree[numTrees].updateBranches();
 				}
 				
 				if(theTree[numTrees].finished) {
-					theTree[++numTrees] = new tree(0.2, 0.6, 0.7, Math.round(100+400*Math.random()), Math.round(100.0+150.0*Math.random())/100, new THREE.Vector3(Math.round(5.0-10.0*Math.random()),-2, Math.round(5.0-10.0*Math.random())), 3.0); 
+					theTree[++numTrees] = new tree(0.2, 0.6, 0.7, Math.round(100+400*Math.random()), Math.round(100.0+150.0*Math.random())/100, new THREE.Vector3(Math.round(5.0-10.0*Math.random()),-1.5, Math.round(5.0-10.0*Math.random())), 3.0); 
 					sceneHandler.scene.add( theTree[numTrees].base );
 				}
 				
@@ -363,8 +357,9 @@
 			var plane = new THREE.Mesh( planeGeometry, shaderMaterial );
 			
 			var theTree = [];
-			theTree[numTrees] = new tree(0.2, 0.6, 0.7, 500, 2.5, new THREE.Vector3(0,-2, 0), 3.0); 
+			theTree[numTrees] = new tree(0.2, 0.4, 0.7, 500, 2.5, new THREE.Vector3(0,-1, 0), 3.0); 
 			
+			cylinders[0] = new cylinderInstance(new THREE.Vector3(0.0, -2.0, 0.0), new THREE.Vector3(3.0, -2.0, 0.0), 17);
 			
 			//Instantiate objects transformation
 			plane.position.y = -2;
@@ -372,7 +367,7 @@
 			camera.position.z = 5;
 			sceneHandler.scene.add( theTree[numTrees].base );
 			sceneHandler.scene.add( plane );
-			
+			//sceneHandler.scene.add( cylinders[0].mesh );
 			
 			//Lights. Shadows needs to be implemented.
 			var ambientLight = new THREE.AmbientLight( 0x202020 );

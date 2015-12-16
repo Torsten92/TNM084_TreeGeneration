@@ -15,6 +15,10 @@
 // Their article may be found here: http://algorithmicbotany.org/papers/colonization.egwnp2007.html
 //
 
+function key(obj){
+  return obj.iteration;
+}
+
 function tree(_D, _dk, _di, _N, _attractionRadius, _startPoint, _height) {
 	this.D = _D;
 	this.dk = _dk;
@@ -26,10 +30,14 @@ function tree(_D, _dk, _di, _N, _attractionRadius, _startPoint, _height) {
 	
 	this.base = new THREE.Object3D();
 	this.finished = false;
+	this.iteration = 1;	//Only used for updating branches
+	
+	//Stores relation between a branch and its top node
+	this.hashMap = {};
 	
 	//An array of cylinderInstances. Each element will represent a tree branch. numBranches represent the current amount of branches
 	this.branches = [];
-	this.numBranches = 0;
+	this.numBranches = 1;
 	
 	//Placed in startPoint + height + random value in sphere
 	this.attractionPoints = [];
@@ -38,7 +46,6 @@ function tree(_D, _dk, _di, _N, _attractionRadius, _startPoint, _height) {
 	this.treeNodes = [];
 	this.numNodes = 1;
 	
-	//this.material = new THREE.MeshPhongMaterial( { color: 0xff0000, specular: 0x999999, shininess: 10, shading: THREE.FlatShading } );
 	
 	//Generate N attraction points in the space defined by startPosition, height and attractionRadius
 	for(var i = 0; i < this.N; i++) {
@@ -51,7 +58,8 @@ function tree(_D, _dk, _di, _N, _attractionRadius, _startPoint, _height) {
 		this.attractionPoints[i].z = this.startPoint.z + this.attractionRadius * Math.random()*Math.sin(theta)*Math.sin(phi);
 	}
 	this.treeNodes[0] = new THREE.Vector3(_startPoint.x, _startPoint.y, _startPoint.z);
-	this.branches[0] = new cylinderInstance(0.02, 0.02, this.D, this.startPoint, this.startPoint);
+	this.branches[0] = new cylinderInstance(this.startPoint, this.treeNodes[0], 0);
+	this.hashMap[key(this.branches[0])] = this.branches[0];
 	
 	this.base.position.copy(_startPoint);
 	this.base.add(this.branches[0].mesh);
@@ -62,29 +70,15 @@ tree.prototype.iterate = function() {
 	if(this.finished)
 		return;
 	
-	//Remove nodes that get too close to each other
-	for(var i = 0; i < this.numNodes; i++) {
-		for(var j = this.numNodes-1; j > i; j--) {
-			var tempVector = new THREE.Vector3();
-			tempVector.subVectors(this.treeNodes[i], this.treeNodes[j]);
-			if(tempVector.length() < 0.75*this.D) {
-				this.treeNodes.splice(j, 1);
-				this.numNodes -= 1;
-				console.log("removed!");
-			}
-		}
-	}
-	this.numNodes = this.treeNodes.length;
-	
 	//Calculate new nodes for each current tree node and attraction point
 	for(var i = 0; i < this.numNodes; i++) {
 		var newBranchDir = new THREE.Vector3(0.0, 0.0, 0.0);
 		
 		//Loop backwards for removal of attraction points to work correctly
 		for(var j = this.attractionPoints.length-1; j >= 0; j--) {
-			var tempVector = new THREE.Vector3( (this.attractionPoints[j].x - this.treeNodes[i].x), 
-												(this.attractionPoints[j].y - this.treeNodes[i].y), 
-												(this.attractionPoints[j].z - this.treeNodes[i].z) );
+			var tempVector = new THREE.Vector3( this.attractionPoints[j].x - this.treeNodes[i].x, 
+												this.attractionPoints[j].y - this.treeNodes[i].y, 
+												this.attractionPoints[j].z - this.treeNodes[i].z );
 			if(tempVector.length() < this.di ) {
 				if(tempVector.length() < this.dk ) {
 					this.attractionPoints.splice(j, 1);
@@ -96,33 +90,67 @@ tree.prototype.iterate = function() {
 		//Keep going if we found any attraction points
 		if(newBranchDir.length() > 0.0) {
 			newBranchDir.normalize();
-			this.treeNodes[this.treeNodes.length] = new THREE.Vector3(this.treeNodes[i].x + (newBranchDir.x * this.D), this.treeNodes[i].y + (newBranchDir.y * this.D), this.treeNodes[i].z + (newBranchDir.z * this.D));
 			
-			var rotQ = new THREE.Quaternion();
-			rotQ.setFromUnitVectors( new THREE.Vector3(0.0, 1.0, 0.0), newBranchDir );
-			this.branches[++this.numBranches] = new cylinderInstance(0.02, 0.02, this.D);
-			this.branches[this.numBranches].mesh.quaternion.multiply( rotQ );
-			this.branches[this.numBranches].mesh.position.copy(this.treeNodes[this.treeNodes.length-1]).sub(this.startPoint).sub(newBranchDir.multiplyScalar(this.D/2));
-			this.base.add(this.branches[this.numBranches].mesh);
+			//Store node position for evaluation
+			var tempPos = new THREE.Vector3( this.treeNodes[i].x + (newBranchDir.x * this.D), 
+											 this.treeNodes[i].y + (newBranchDir.y * this.D), 
+											 this.treeNodes[i].z + (newBranchDir.z * this.D) );
+			
+			var breakCondition = false;
+			for(var k = 0; k < this.numNodes; k++) {
+				var temp = new THREE.Vector3(tempPos.x, tempPos.y, tempPos.z); //Another temporary variable needed because of THREE.js vector operators
+				if(temp.sub(this.treeNodes[k]).length() < 0.7*this.D){	//Basically means angle between branches needs to be larger than asin(0.7) = 44.4%
+					breakCondition = true;
+				}
 			}
+			
+			if(breakCondition == false) {
+				this.treeNodes[this.treeNodes.length] = tempPos;
+				
+				//Create a new branch and add it to the hashMap. Then add that branch as a child to the current branch
+				this.branches[this.numBranches++] = new cylinderInstance(this.treeNodes[i], this.treeNodes[this.treeNodes.length-1], this.iteration++);
+				
+				this.branches[this.numBranches-1].mesh.position.copy(this.treeNodes[i]);
+				this.hashMap[key(this.branches[this.numBranches-1])] = this.branches[this.numBranches-1];
+				this.base.add(this.branches[this.numBranches-1].mesh);
+			}
+		}
 	}
 	//If we didn't find any new nodes it means that the tree is either complete or it wasn't able to start
 	if(this.numNodes == this.treeNodes.length) {
 		if(this.treeNodes.length == 1) {
 			this.treeNodes[0].y += this.D; //Move node upwards if it didn't start
-			
-			this.branches[++this.numBranches] = new cylinderInstance(0.02, 0.02, this.D);
-			this.branches[this.numBranches].mesh.position.copy(this.treeNodes[this.treeNodes.length-1]).sub(this.startPoint).sub(new THREE.Vector3(0.0,1.0,0.0).multiplyScalar(this.D/2));
-			this.base.add(this.branches[this.numBranches].mesh);
+			this.branches[0].top.copy(this.treeNodes[0]);
+			console.log("Didn't find any points. Moving up...");
 		}
 		else
 			this.finished = true;
+		
+		return; //This iteration is finished. Next step will tell us how to proceed.
 	}
 	
 	this.numNodes = this.treeNodes.length;
-	//console.log("numNodes numBranches aP.length = " + this.numNodes + " "+ this.numBranches + " " + this.attractionPoints.length + " " + this.finished);
+	this.numBranches = this.branches.length;
 	
-	//var rotQ = new THREE.Quaternion();
-	//rotQ.setFromAxisAngle( new THREE.Vector3( 1, 0, 0 ), 0.1 );
-	//this.branches[0].mesh.quaternion.multiply( rotQ );
+	//Update radius for all branches
+	for(var i = 0; i < this.numBranches; i++) {
+		this.branches[i].updateRadius(this.iteration);
+	}
+	
+	console.log("numNodes numBranches aP.length = " + this.numNodes + " "+ this.numBranches + " " + this.attractionPoints.length + " " + this.finished);
 };
+
+
+tree.prototype.updateBranches = function() {
+	var temp = 0;
+	for(var i = 0; i < this.branches.length; i++) {
+		temp += this.branches[i].updateGeometry();
+	}
+	if(temp == 0)
+		this.iterate();
+}
+
+
+//Measure performance (in milliseconds)
+//console.time("myCode");
+//console.timeEnd("myCode");
