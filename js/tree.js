@@ -32,7 +32,12 @@ function tree(_D, _dk, _di, _N, _attractionRadius, _startPoint, _height) {
 	this.finished = false;
 	this.iteration = 1;	//Only used for updating branches
 	
-	//Stores relation between a branch and its top node
+	//Leaf texture sent to the branches
+	this.texloader = new THREE.TextureLoader();
+	this.leafTex = this.texloader.load("textures/leaf.png");
+	this.leafMaterial = new THREE.MeshBasicMaterial( { map: this.leafTex, side: THREE.DoubleSide, transparent: true, blending: THREE.CustomBlending })
+
+	//Stores relation between a branch and its top node (not currently used)
 	this.hashMap = {};
 	
 	//An array of cylinderInstances. Each element will represent a tree branch. numBranches represent the current amount of branches
@@ -67,8 +72,12 @@ function tree(_D, _dk, _di, _N, _attractionRadius, _startPoint, _height) {
 
 
 tree.prototype.iterate = function() {
-	if(this.finished)
+	if(this.finished) {
+		//Clear arrays
+		this.attractionPoints.splice(0, this.attractionPoints.length);
+		this.treeNodes.splice(0, this.treeNodes.length);
 		return;
+	}
 	
 	//Calculate new nodes for each current tree node and attraction point
 	for(var i = 0; i < this.numNodes; i++) {
@@ -108,7 +117,7 @@ tree.prototype.iterate = function() {
 				this.treeNodes[this.treeNodes.length] = tempPos;
 				
 				//Create a new branch and add it to the hashMap. Then add that branch as a child to the current branch
-				this.branches[this.numBranches++] = new cylinderInstance(this.treeNodes[i], this.treeNodes[this.treeNodes.length-1], this.iteration++);
+				this.branches[this.numBranches++] = new cylinderInstance(this.treeNodes[i], this.treeNodes[this.treeNodes.length-1], ++this.iteration);
 				
 				this.branches[this.numBranches-1].mesh.position.copy(this.treeNodes[i]);
 				this.hashMap[key(this.branches[this.numBranches-1])] = this.branches[this.numBranches-1];
@@ -121,7 +130,6 @@ tree.prototype.iterate = function() {
 		if(this.treeNodes.length == 1) {
 			this.treeNodes[0].y += this.D; //Move node upwards if it didn't start
 			this.branches[0].top.copy(this.treeNodes[0]);
-			console.log("Didn't find any points. Moving up...");
 		}
 		else
 			this.finished = true;
@@ -137,14 +145,14 @@ tree.prototype.iterate = function() {
 		this.branches[i].updateRadius(this.iteration);
 	}
 	
-	console.log("numNodes numBranches aP.length = " + this.numNodes + " "+ this.numBranches + " " + this.attractionPoints.length + " " + this.finished);
+	//console.log("numNodes numBranches aP.length = " + this.numNodes + " "+ this.numBranches + " " + this.attractionPoints.length + " " + this.finished);
 };
 
 
 tree.prototype.updateBranches = function() {
 	var temp = 0;
 	for(var i = 0; i < this.branches.length; i++) {
-		temp += this.branches[i].updateGeometry();
+		temp += this.branches[i].updateGeometry(this.leafMaterial);
 	}
 	if(temp == 0)
 		this.iterate();
