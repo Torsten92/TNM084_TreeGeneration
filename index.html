@@ -7,14 +7,101 @@
 			body { 
 				margin: 0; 
 				background-color: #f0f0f0;
+				<button type="button">Click Me!</button>
+				
+			}
+			
+			div.windCheck {
+				position: absolute;
+				bottom: 360px;
+				left: 20px;
+				width: 120px;
+				height: 100px;
+			}
+			div.treeHeightSlider {
+				position: absolute;
+				bottom: 320px;
+				left: 20px;
+				width: 120px;
+				height: 100px;
+			}
+			div.treeSizeSlider {
+				position: absolute;
+				bottom: 240px;
+				left: 20px;
+				width: 120px;
+				height: 100px;
+			}
+			div.treeComplexitySlider {
+				position: absolute;
+				bottom: 160px;
+				left: 20px;
+				width: 120px;
+				height: 100px;
+			}
+			div.newTree {
+				position: absolute;
+				bottom: 80px;
+				left: 40px;
+				width: 200px;
+				height: 100px;
+			}
+			div.reset {
+				position: absolute;
+				bottom: 40px;
+				left: 40px;
+				width: 200px;
+				height: 100px;
 			}
 			
 			
-			
-			<!--canvas { width: 100%; height: 100% }-->
 		</style>
 	</head>
 	<body>
+		<div class="windCheck">
+			<input id="windcheck" type="checkbox">Generate wind<br>
+		</div>
+		<div class="treeHeightSlider">
+		<span id="treeheight">Treeheight: 2m</span>
+			<input id="THslider" type="range" min="0" max="50" value="20" onchange="showValue1(this.value)" />
+			<script type="text/javascript">
+			function showValue1(newValue)
+			{
+				document.getElementById("treeheight").innerHTML="Treeheight: "+newValue/10+"m";
+				document.getElementById("THslider").value = newValue;
+			}
+			</script>
+		</div>
+		<div class="treeSizeSlider">
+		<span id="treesize">Treesize: 2m</span>
+			<input id="TSslider" type="range" min="0" max="50" value="20" onchange="showValue2(this.value)" />
+			<script type="text/javascript">
+			function showValue2(newValue)
+			{
+				document.getElementById("treesize").innerHTML="Treesize: "+newValue/10+"m";
+				document.getElementById("TSslider").value = newValue;
+			}
+			</script>
+		</div>
+		<div class="treeComplexitySlider">
+		<span id="treecomplexity">Tree complexity: 3 nodes/m^3</span>
+			<input id="TCslider" type="range" min="1" max="10" value="3" onchange="showValue3(this.value)" />
+			<script type="text/javascript">
+			function showValue3(newValue)
+			{
+				document.getElementById("treecomplexity").innerHTML="Tree complexity: "+newValue+" nodes/m^3";
+				document.getElementById("TCslider").value = newValue;
+			}
+			</script>
+		</div>
+		<div class="newTree">
+			<button type="button" onclick="newTree()">Generate new tree</button>
+		</div>
+		<div class="reset">
+		<button type="button" onclick="reset()">Reset</button>
+		</div>
+		
+		
 		<script src="js/threejs/three.min.js"></script>
 		<script src="js/threejs/libs/stats.min.js"></script>
 		<script src="js/threejs/three-tut.js"></script>
@@ -285,13 +372,12 @@
 		<!-- Main program -->
 		
 		<script>
-			
 			var stats, container;
 			var clock = new THREE.Clock();
 			var n = 0;
 			var cylinders = []; //old stuff
-			var spawnTime = 0, iterateTime = 0, iterator = 0, windTime = 0, winditerator = 0;
-			var numTrees = 0;
+			var spawnTime = 0, iterateTime = 0, iterator = 0, winditerator = 0;
+			var numTrees = -1;
 			
 			function render() {			
 				
@@ -299,23 +385,19 @@
 				
 				
 				//iterate every 0.1 seconds
-				if(clock.getElapsedTime() - iterateTime > 0.15) {
+				if(numTrees >= 0 && clock.getElapsedTime() - iterateTime > 0.1) {
 					iterateTime = 0.15*iterator++;
-					theTree[numTrees].updateBranches();
-				}
-				
-				if(clock.getElapsedTime() - windTime > 0.1) {
-					windTime = 0.2*winditerator++;
 					for(var i = 0; i <= numTrees; i++) {
-						theTree[i].generateWind(clock.getElapsedTime());
+						Trees[i].updateBranches();
 					}
 				}
 				
-//				if(theTree[numTrees].finished) {
-//					theTree[++numTrees] = new tree(0.2, 0.6, 0.7, Math.round(100+400*Math.random()), Math.round(100.0+150.0*Math.random())/100, new THREE.Vector3(Math.round(5.0-10.0*Math.random()),-2.25, Math.round(5.0-10.0*Math.random())), 3.0); 
-//					sceneHandler.scene.add( theTree[numTrees].base );
-//				}
-				
+				if(document.getElementById("windcheck").checked && numTrees >= 0) {
+					var windSpeed = 512;	//The number of iterations to complete a half circle.
+					for(var i = 0; i <= numTrees; i++) {
+						Trees[i].generateWind(winditerator++ * Math.PI/windSpeed, windSpeed);	//Rotation speed of wind
+					}
+				}
 				
 				renderer.render( sceneHandler.scene, camera );
 				stats.update();
@@ -332,6 +414,7 @@
 			
 			var renderer = new THREE.WebGLRenderer({ antialias: true });
 			renderer.setSize( window.innerWidth, window.innerHeight-10 );
+			renderer.setViewport( window.innerWidth*0.1, 0, window.innerWidth*0.9, window.innerHeight-10 );
 			renderer.setClearColor( 0x505050 );
 			renderer.shadowMapEnabled = true;
 			renderer.shadowMapType = THREE.PCFSoftShadowMap;
@@ -343,7 +426,11 @@
 			stats = new Stats();
 			stats.domElement.style.position = 'absolute';
 			stats.domElement.style.top = '0px';
+			stats.domElement.style.left = '10%';
 			container.appendChild( stats.domElement );
+			
+			var x = document.createElement("INPUT");
+			x.setAttribute("type", "range");
 			
 			
 			//Declare object properties
@@ -362,19 +449,13 @@
 			});
 			
 			var plane = new THREE.Mesh( planeGeometry, shaderMaterial );
-			
-			var theTree = [];
-			theTree[numTrees] = new tree(0.2, 0.4, 0.7, 500, 2.5, new THREE.Vector3(0,-2.25, 0), 3.0); 
-			
-			//cylinders[0] = new cylinderInstance(new THREE.Vector3(0.0, -2.0, 0.0), new THREE.Vector3(3.0, -2.0, 0.0), 17);
+			var Trees = [];
 			
 			//Instantiate objects transformation
 			plane.position.y = -2;
 			plane.rotation.x = -Math.PI / 2;
 			camera.position.z = 5;
-			sceneHandler.scene.add( theTree[numTrees].base );
 			sceneHandler.scene.add( plane );
-			//sceneHandler.scene.add( cylinders[0].mesh );
 			
 			//Lights. Shadows needs to be implemented.
 			var ambientLight = new THREE.AmbientLight( 0x202020 );
@@ -392,12 +473,12 @@
 			
 			
 			//Add the necessary event listeners
-			window.addEventListener( 'mousemove', onDocumentMouseMove, false );
-			window.addEventListener( 'mousedown', onDocumentMouseDown, false );
-			window.addEventListener( 'mouseup', onDocumentMouseUp, false );
-			window.addEventListener( 'wheel', onDocumentMouseWheel, false );	// Firefox
-			window.addEventListener( 'resize', onWindowResize, false );
-			window.addEventListener( 'touchstart', onDocumentTouchStart, false );
+			renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
+			renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
+			renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
+			renderer.domElement.addEventListener( 'wheel', onDocumentMouseWheel, false );	// Firefox
+			renderer.domElement.addEventListener( 'resize', onWindowResize, false );
+			renderer.domElement.addEventListener( 'touchstart', onDocumentTouchStart, false );
 			
 			
 			// *** Skybox code. It seems difficult to save this into a function/object so it will have to sit here for the time being. ***	
@@ -429,6 +510,26 @@
 			var skybox = new THREE.Mesh( new THREE.CubeGeometry(100, 100, 100), skyBoxMaterial );
 			sceneHandler.scene.add( skybox );
 			
+			
+			// *** Menu functions ***
+			
+			function newTree() {
+				var height = document.getElementById("THslider").value/10;
+				var size = document.getElementById("TSslider").value/10;
+				var nodes = document.getElementById("TCslider").value*(4*Math.PI*Math.pow(size,3))/3;
+				
+				Trees[++numTrees] = new tree(0.2, 0.6, 0.7, nodes, size, new THREE.Vector3(10.0-20.0*Math.random(),-2.25, 10.0-20.0*Math.random()), height);
+				sceneHandler.scene.add( Trees[numTrees].base );
+			}
+			function reset() {
+				for(var i = 0; i <= numTrees; i++) {
+					sceneHandler.scene.remove(Trees[i].base);
+				}
+				Trees.splice(0, Trees.length);
+				numTrees = -1;
+			}
+			
 		</script>
+		
 	</body>
 </html>

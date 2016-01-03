@@ -6,15 +6,16 @@ onMouseDownPosition = new THREE.Vector2();
 
 function onDocumentMouseDown(event) {
 	event.preventDefault();
+	
+	if(event.clientX > window.innerWidth*0.1 && event.clientX < window.innerWidth) {
+		isMouseDown = true;
 
-	isMouseDown = true;
-
-	onMouseDownTheta = camTheta;
-	onMouseDownPhi = camPhi;
-	onMouseDownPosition.x = event.clientX;
-	onMouseDownPosition.y = event.clientY;
-	//onMouseDownPosition.x = ( event.clientX / renderer.domElement.width ) * 2 - 1;
-	//onMouseDownPosition.y = - ( event.clientY / renderer.domElement.height ) * 2 + 1;
+		onMouseDownTheta = camTheta;
+		onMouseDownPhi = camPhi;
+	
+		onMouseDownPosition.x = event.clientX;
+		onMouseDownPosition.y = event.clientY;
+	}
 }
 
 function onDocumentMouseMove(event) {
@@ -55,7 +56,7 @@ function onDocumentMouseUp(event) {
 function onDocumentMouseWheel(event) {
 
 	camRadius += 0.03 * event.deltaY;
-	camRadius = Math.min(10, Math.max(2, camRadius));
+	camRadius = Math.min(20, Math.max(2, camRadius));
 
 	camera.rotation.y = camTheta * Math.PI / 180;
 	camera.rotation.x = -camPhi * Math.PI / 180;

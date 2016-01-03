@@ -33,7 +33,6 @@ function cylinderInstance(_bottom, _top, _iteration, _parentDir, _topNode) {
 	var temp2 = new THREE.Vector3();
 	temp2.copy(_parentDir);
 	rotQ.setFromUnitVectors(temp2.normalize(), temp.normalize());
-	//rotQ.setFromAxisAngle(new THREE.Vector3(0.0,0.0,1.0), 0.2);
 	this.staticQuaternion.multiplyQuaternions(this.mesh.quaternion, rotQ.inverse());
 	this.mesh.quaternion.copy(this.staticQuaternion);
 
@@ -68,8 +67,6 @@ cylinderInstance.prototype.updateGeometry = function (_leafMaterial) {
 };
 
 cylinderInstance.prototype.updateRadius = function (_iteration) {
-	//var topRad = Math.sqrt(_iteration-this.iteration) * 0.01;
-	//var botRad = Math.sqrt(1+_iteration-this.iteration) * 0.01;
 	var topRad = Math.sqrt(_iteration / this.iteration) * 0.01;
 	var botRad = Math.sqrt(_iteration / this.iteration) * 0.012;
 	this.geometry = new THREE.CylinderGeometry(topRad, botRad, this.direction.length() * this.finished, 10);
@@ -85,7 +82,6 @@ cylinderInstance.prototype.updateRadius = function (_iteration) {
 cylinderInstance.prototype.shake = function (_strength) {
 	var tempQ = new THREE.Quaternion();
 	var tempV = new THREE.Vector3(0.5, 0.5, 1.0).normalize();
-	tempV.applyQuaternion(this.staticQuaternion);
 	tempQ.setFromAxisAngle(tempV, _strength);
 	this.mesh.quaternion.multiply(tempQ);
 }

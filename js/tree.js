@@ -113,7 +113,7 @@ tree.prototype.iterate = function () {
 			var breakCondition = false;
 			for (var k = 0; k < this.numNodes; k++) {
 				var temp = new THREE.Vector3(tempPos.x, tempPos.y, tempPos.z); //Another temporary variable needed because of THREE.js vector operators
-				if (temp.sub(this.treeNodes[k]).length() < 0.999 * this.D) { //Prevents branches from growing into each other
+				if (temp.sub(this.treeNodes[k]).length() < 0.9 * this.D) { //Prevents branches from growing into each other
 					breakCondition = true;
 				}
 			}
@@ -129,15 +129,6 @@ tree.prototype.iterate = function () {
 
 				this.hashMap[key(this.branches[this.numBranches - 1])] = this.branches[this.numBranches - 1];
 				this.hashMap[i].mesh.add(this.branches[this.numBranches - 1].mesh);
-
-				//this.treeNodes[this.treeNodes.length] = tempPos;
-
-				//Create a new branch and add it to the hashMap. Then add that branch as a child to the current branch
-				//this.branches[this.numBranches++] = new cylinderInstance(this.treeNodes[i], this.treeNodes[this.treeNodes.length-1], ++this.iteration);
-
-				//this.branches[this.numBranches-1].mesh.position.copy(this.treeNodes[i]);
-				//this.hashMap[key(this.branches[this.numBranches-1])] = this.branches[this.numBranches-1];
-				//this.base.add(this.branches[this.numBranches-1].mesh);
 			}
 		}
 	}
@@ -159,8 +150,6 @@ tree.prototype.iterate = function () {
 	for (var i = 0; i < this.numBranches; i++) {
 		this.branches[i].updateRadius(this.iteration);
 	}
-
-	//console.log("numNodes numBranches aP.length = " + this.numNodes + " "+ this.numBranches + " " + this.attractionPoints.length + " " + this.finished);
 };
 
 tree.prototype.updateBranches = function () {
@@ -172,13 +161,8 @@ tree.prototype.updateBranches = function () {
 		this.iterate();
 }
 
-tree.prototype.generateWind = function (_time) {
+tree.prototype.generateWind = function (_time, _windSpeed) {
 	for (var i = 0; i < this.branches.length; i++) {
-		this.branches[i].shake(0.1 * Math.PI * Math.cos(_time) / 180);
+		this.branches[i].shake(1/_windSpeed * Math.PI * Math.cos(_time) / 180);	//Amplitude of wind
 	}
 }
-
-//Measure performance (in milliseconds)
-//console.time("myCode");
-// do stuff
-//console.timeEnd("myCode");
