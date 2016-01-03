@@ -273,7 +273,7 @@
 			
 			void main( void ) {
 
-				vec3 newPosition = position + normal * vec3(0.0, 0.0, max(0.0, 2.0*snoise(position)));
+				vec3 newPosition = position + normal * vec3(0.0, 0.0, max(0.0, snoise(position)));
 				pos = position;
 				gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
 
@@ -290,7 +290,7 @@
 			var clock = new THREE.Clock();
 			var n = 0;
 			var cylinders = []; //old stuff
-			var spawnTime = 0, iterateTime = 0, iterator = 0;
+			var spawnTime = 0, iterateTime = 0, iterator = 0, windTime = 0, winditerator = 0;
 			var numTrees = 0;
 			
 			function render() {			
@@ -299,15 +299,22 @@
 				
 				
 				//iterate every 0.1 seconds
-				if(clock.getElapsedTime() - iterateTime > 0.05) {
-					iterateTime = 0.05*iterator++;
+				if(clock.getElapsedTime() - iterateTime > 0.15) {
+					iterateTime = 0.15*iterator++;
 					theTree[numTrees].updateBranches();
 				}
 				
-				if(theTree[numTrees].finished) {
-					theTree[++numTrees] = new tree(0.2, 0.6, 0.7, Math.round(100+400*Math.random()), Math.round(100.0+150.0*Math.random())/100, new THREE.Vector3(Math.round(5.0-10.0*Math.random()),-1.5, Math.round(5.0-10.0*Math.random())), 3.0); 
-					sceneHandler.scene.add( theTree[numTrees].base );
+				if(clock.getElapsedTime() - windTime > 0.1) {
+					windTime = 0.2*winditerator++;
+					for(var i = 0; i <= numTrees; i++) {
+						theTree[i].generateWind(clock.getElapsedTime());
+					}
 				}
+				
+//				if(theTree[numTrees].finished) {
+//					theTree[++numTrees] = new tree(0.2, 0.6, 0.7, Math.round(100+400*Math.random()), Math.round(100.0+150.0*Math.random())/100, new THREE.Vector3(Math.round(5.0-10.0*Math.random()),-2.25, Math.round(5.0-10.0*Math.random())), 3.0); 
+//					sceneHandler.scene.add( theTree[numTrees].base );
+//				}
 				
 				
 				renderer.render( sceneHandler.scene, camera );
@@ -357,9 +364,9 @@
 			var plane = new THREE.Mesh( planeGeometry, shaderMaterial );
 			
 			var theTree = [];
-			theTree[numTrees] = new tree(0.2, 0.4, 0.7, 500, 2.5, new THREE.Vector3(0,-1, 0), 3.0); 
+			theTree[numTrees] = new tree(0.2, 0.4, 0.7, 500, 2.5, new THREE.Vector3(0,-2.25, 0), 3.0); 
 			
-			cylinders[0] = new cylinderInstance(new THREE.Vector3(0.0, -2.0, 0.0), new THREE.Vector3(3.0, -2.0, 0.0), 17);
+			//cylinders[0] = new cylinderInstance(new THREE.Vector3(0.0, -2.0, 0.0), new THREE.Vector3(3.0, -2.0, 0.0), 17);
 			
 			//Instantiate objects transformation
 			plane.position.y = -2;
@@ -388,13 +395,12 @@
 			window.addEventListener( 'mousemove', onDocumentMouseMove, false );
 			window.addEventListener( 'mousedown', onDocumentMouseDown, false );
 			window.addEventListener( 'mouseup', onDocumentMouseUp, false );
-			//window.addEventListener( 'mousewheel', onDocumentMouseWheel, false );		// IE9, Chrome, Safari, Opera
 			window.addEventListener( 'wheel', onDocumentMouseWheel, false );	// Firefox
 			window.addEventListener( 'resize', onWindowResize, false );
 			window.addEventListener( 'touchstart', onDocumentTouchStart, false );
 			
-			// *** Skybox code. It seems difficult to save this into a function/object so it will have to sit here for the time being. ***
-				
+			
+			// *** Skybox code. It seems difficult to save this into a function/object so it will have to sit here for the time being. ***	
 			var urls = [
 			  'textures/skybox/posx.png',
 			  'textures/skybox/negx.png',
