@@ -11,7 +11,7 @@
 //
 // attractionRadius should be around 50-100 % of height value to get a nice tree.
 //
-// Author: Torsten Gustafsson (2015-12-07)
+// Author: Torsten Gustafsson. LiU. (2016-01-05)
 // Based on Adam Runions, Brendan Lane, and Przemyslaw Prusinkiewicz's article on the space colonisation algorithm.
 // Their article may be found here: http://algorithmicbotany.org/papers/colonization.egwnp2007.html
 //
@@ -124,7 +124,7 @@ tree.prototype.iterate = function () {
 				//Create a new branch and add it to the hashMap. Then add that branch as a child to the current branch
 				this.branches[this.numBranches++] = new cylinderInstance(this.hashMap[i].top, this.treeNodes[this.treeNodes.length - 1], ++this.iteration, this.hashMap[i].direction, this.treeNodes.length - 1);
 
-				var tempDir = new THREE.Vector3(this.hashMap[i].direction.x, this.hashMap[i].direction.y, this.hashMap[i].direction.z);
+				//var tempDir = new THREE.Vector3(this.hashMap[i].direction.x, this.hashMap[i].direction.y, this.hashMap[i].direction.z);
 				this.branches[this.numBranches - 1].mesh.position.set(0, this.D, 0);
 
 				this.hashMap[key(this.branches[this.numBranches - 1])] = this.branches[this.numBranches - 1];
@@ -136,7 +136,11 @@ tree.prototype.iterate = function () {
 	if (this.numNodes == this.treeNodes.length) {
 		if (this.treeNodes.length == 1) {
 			this.treeNodes[0].y += this.D; //Move node upwards if it didn't start
-			this.branches[0].top.copy(this.treeNodes[0]);
+			
+			this.branches[this.numBranches++] = new cylinderInstance(new THREE.Vector3(this.treeNodes[0].x, this.treeNodes[0].y-this.D, this.treeNodes[0].z), this.treeNodes[0], ++this.iteration, new THREE.Vector3(0, this.D, 0), 0);
+			this.branches[this.numBranches - 1].mesh.position.set(0, this.D, 0);
+			this.hashMap[key(this.branches[this.numBranches - 1])] = this.branches[this.numBranches - 1];
+			this.branches[this.numBranches - 2].mesh.add(this.branches[this.numBranches - 1].mesh);
 		} else
 			this.finished = true;
 

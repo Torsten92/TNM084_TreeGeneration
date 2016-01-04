@@ -1,0 +1,63 @@
+div.title {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	width: 160px;
+	height: 60px;
+	background-color: #AABFA8;
+	text-align: center;
+	font-size: 150%;
+}
+div.instructions {
+	position: absolute;
+	top: 80px;
+	left: 10px;
+	width: 180px;
+	height: 500px;
+}
+div.windCheck {
+	position: absolute;
+	bottom: 280px;
+	left: 10px;
+	width: 180px;
+	height: 100px;
+}
+div.treeHeightSlider {
+	position: absolute;
+	bottom: 240px;
+	left: 10px;
+	width: 180px;
+	height: 100px;
+}
+div.treeSizeSlider {
+	position: absolute;
+	bottom: 180px;
+	left: 10px;
+	width: 180px;
+	height: 100px;
+}
+div.treeComplexitySlider {
+	position: absolute;
+	bottom: 120px;
+	left: 10px;
+	width: 180px;
+	height: 100px;
+}
+div.newTree {
+	position: absolute;
+	bottom: 40px;
+	left: 20px;
+	width: 180px;
+	height: 100px;
+}
+div.reset {
+	position: absolute;
+	bottom: 0px;
+	left: 20px;
+	width: 180px;
+	height: 100px;
+}
+
+div.font80 {
+	font-size: 80%;
+}

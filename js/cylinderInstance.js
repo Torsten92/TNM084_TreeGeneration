@@ -17,7 +17,7 @@ function cylinderInstance(_bottom, _top, _iteration, _parentDir, _topNode) {
 			shininess : 10,
 			shading : THREE.FlatShading
 		});
-	this.geometry = new THREE.CylinderGeometry(0.0, 0.0, 0.0, 10);
+	this.geometry = new THREE.CylinderGeometry(0.0, 0.0, 0.0, levelOfDetail);
 	this.mesh = new THREE.Mesh(this.geometry, this.material);
 	this.staticQuaternion = new THREE.Quaternion();
 
@@ -45,7 +45,7 @@ cylinderInstance.prototype.updateGeometry = function (_leafMaterial) {
 	var stepSize = 0.125; // 1/8
 	this.finished = Math.min(1.01, this.finished + stepSize);
 	if (this.finished <= 1.0) {
-		this.geometry = new THREE.CylinderGeometry(0.01, 0.01, this.direction.length() * this.finished, 10);
+		this.geometry = new THREE.CylinderGeometry(0.01, 0.01, this.direction.length() * this.finished, levelOfDetail);
 		this.geometry.translate(0.0, this.direction.length() * this.finished / 2, 0.0);
 		this.mesh.geometry = this.geometry;
 
@@ -69,7 +69,7 @@ cylinderInstance.prototype.updateGeometry = function (_leafMaterial) {
 cylinderInstance.prototype.updateRadius = function (_iteration) {
 	var topRad = Math.sqrt(_iteration / this.iteration) * 0.01;
 	var botRad = Math.sqrt(_iteration / this.iteration) * 0.012;
-	this.geometry = new THREE.CylinderGeometry(topRad, botRad, this.direction.length() * this.finished, 10);
+	this.geometry = new THREE.CylinderGeometry(topRad, botRad, this.direction.length() * this.finished, levelOfDetail);
 	this.geometry.translate(0.0, this.direction.length() * this.finished / 2, 0.0);
 	this.mesh.geometry = this.geometry;
 

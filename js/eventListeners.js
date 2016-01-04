@@ -54,8 +54,13 @@ function onDocumentMouseUp(event) {
 }
 
 function onDocumentMouseWheel(event) {
-
-	camRadius += 0.03 * event.deltaY;
+	
+	//Firefox have a slower scroll than other browsers
+	var isFirefox = typeof InstallTrigger !== 'undefined';
+	if(!isFirefox)
+		camRadius += 0.01 * event.deltaY;
+	else
+		camRadius += 0.2 * event.deltaY;
 	camRadius = Math.min(20, Math.max(2, camRadius));
 
 	camera.rotation.y = camTheta * Math.PI / 180;

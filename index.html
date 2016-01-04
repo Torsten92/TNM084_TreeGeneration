@@ -1,69 +1,39 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<link rel="stylesheet" type="text/css" href="style.css">
+		
 		<meta charset=utf-8>
 		<title>Make some noise!</title>
 		<style>
 			body { 
-				margin: 0; 
-				background-color: #f0f0f0;
-				<button type="button">Click Me!</button>
-				
+				margin: 0;
+				background-color: #7E8F7C;
+				font-size: 14px;
 			}
-			
-			div.windCheck {
-				position: absolute;
-				bottom: 360px;
-				left: 20px;
-				width: 120px;
-				height: 100px;
-			}
-			div.treeHeightSlider {
-				position: absolute;
-				bottom: 320px;
-				left: 20px;
-				width: 120px;
-				height: 100px;
-			}
-			div.treeSizeSlider {
-				position: absolute;
-				bottom: 240px;
-				left: 20px;
-				width: 120px;
-				height: 100px;
-			}
-			div.treeComplexitySlider {
-				position: absolute;
-				bottom: 160px;
-				left: 20px;
-				width: 120px;
-				height: 100px;
-			}
-			div.newTree {
-				position: absolute;
-				bottom: 80px;
-				left: 40px;
-				width: 200px;
-				height: 100px;
-			}
-			div.reset {
-				position: absolute;
-				bottom: 40px;
-				left: 40px;
-				width: 200px;
-				height: 100px;
-			}
-			
 			
 		</style>
 	</head>
 	<body>
+	
+		<!-- Menu items -->
+		
+		<div class="title">
+			Procedural Tree Generation
+		</div>
+		<div class="instructions">
+			<p>Use the sliders to set tree parameters. When you are finished, press the "generate new tree" button to add a procedurally generated tree to the scene.</p>
+			<p>Try not to create too many big trees to avoid crashes!</p>
+			<div class="font80">This figure shows how height and width affect tree appearance</div>
+			<img src="textures/instructions.png" width="150" height="219">
+			<hr>
+		</div>
 		<div class="windCheck">
-			<input id="windcheck" type="checkbox">Generate wind<br>
+			Generate wind <input id="windcheck" type="checkbox">
 		</div>
 		<div class="treeHeightSlider">
 		<span id="treeheight">Treeheight: 2m</span>
-			<input id="THslider" type="range" min="0" max="50" value="20" onchange="showValue1(this.value)" />
+			<input id="THslider" type="range" min="10" max="50" value="20" onchange="showValue1(this.value)" />
 			<script type="text/javascript">
 			function showValue1(newValue)
 			{
@@ -73,19 +43,19 @@
 			</script>
 		</div>
 		<div class="treeSizeSlider">
-		<span id="treesize">Treesize: 2m</span>
-			<input id="TSslider" type="range" min="0" max="50" value="20" onchange="showValue2(this.value)" />
+		<span id="treesize">Treewidth: 2m</span>
+			<input id="TSslider" type="range" min="10" max="50" value="20" onchange="showValue2(this.value)" />
 			<script type="text/javascript">
 			function showValue2(newValue)
 			{
-				document.getElementById("treesize").innerHTML="Treesize: "+newValue/10+"m";
+				document.getElementById("treesize").innerHTML="Treewidth: "+newValue/10+"m";
 				document.getElementById("TSslider").value = newValue;
 			}
 			</script>
 		</div>
 		<div class="treeComplexitySlider">
-		<span id="treecomplexity">Tree complexity: 3 nodes/m^3</span>
-			<input id="TCslider" type="range" min="1" max="10" value="3" onchange="showValue3(this.value)" />
+		<span id="treecomplexity" font-size="12px">Tree complexity: 3 nodes/m^3</span>
+			<input id="TCslider" type="range" min="1" max="15" value="3" onchange="showValue3(this.value)" />
 			<script type="text/javascript">
 			function showValue3(newValue)
 			{
@@ -102,17 +72,20 @@
 		</div>
 		
 		
+		<!-- Javascript -->
+		
 		<script src="js/threejs/three.min.js"></script>
 		<script src="js/threejs/libs/stats.min.js"></script>
 		<script src="js/threejs/three-tut.js"></script>
 		<script src="js/perlin.js"></script>
 		
 		<script src="js/cylinderInstance.js"></script>
-		<script src="js/eventListeners.js"></script>
 		<script src="js/tree.js"></script>
+		<script src="js/eventListeners.js"></script>
 		
 		
-		<!-- Since it's too much hassle to put the shaders into separate files, they will have to be here in the main file... -->
+		<!-- Since it's too much hassle to put the shaders into separate files they will have to be here in the main file -->
+		
 		<script id="fragmentShaderNoise" type="x-shader/x-fragment">
 
 			//
@@ -376,17 +349,17 @@
 			var clock = new THREE.Clock();
 			var n = 0;
 			var cylinders = []; //old stuff
-			var spawnTime = 0, iterateTime = 0, iterator = 0, winditerator = 0;
+			var spawnTime = 0, iterateTime = 0, winditerator = 0, lagiterator = 0;
 			var numTrees = -1;
+			var levelOfDetail = 10;
 			
 			function render() {			
 				
 				uniforms.amplitude.value = Math.sin(clock.getElapsedTime());
 				
-				
-				//iterate every 0.1 seconds
-				if(numTrees >= 0 && clock.getElapsedTime() - iterateTime > 0.1) {
-					iterateTime = 0.15*iterator++;
+				//iterate every (1/levelOfDetail) second (0.1-0.25)
+				if(numTrees >= 0 && clock.getElapsedTime() - iterateTime > (1/levelOfDetail)) {
+					iterateTime += 1/levelOfDetail;
 					for(var i = 0; i <= numTrees; i++) {
 						Trees[i].updateBranches();
 					}
@@ -399,13 +372,27 @@
 					}
 				}
 				
+				//check for lag every third second. Reduce detail if too many objects
+				if(numTrees >= 0 && clock.getElapsedTime() - lagiterator > 3.0) {
+					lagiterator+=3;
+					var branchAmount = 0;
+					for(var i = 0; i <= numTrees; i++) {
+						branchAmount += Trees[i].branches.length;
+					}
+					levelOfDetail = Math.max(4, 10-Math.floor(Math.sqrt(branchAmount/100)));	//Gives a pretty good number
+					if(levelOfDetail == 4) {
+						window.alert("Too many objects in scene. \n\nResetting...");
+						reset();
+					}
+				}
+				
 				renderer.render( sceneHandler.scene, camera );
 				stats.update();
 				
 				requestAnimationFrame( render );
 			}
 			
-			//sceneHandler is neccessary in order to access scene by reference in javascript
+			//sceneHandler to allow possible scene change in the future
 			var sceneHandler = {scene: new THREE.Scene()};
 			
 			//Eulerorder YXZ is important for spherical camera movement
@@ -415,11 +402,12 @@
 			var renderer = new THREE.WebGLRenderer({ antialias: true });
 			renderer.setSize( window.innerWidth, window.innerHeight-10 );
 			renderer.setViewport( window.innerWidth*0.1, 0, window.innerWidth*0.9, window.innerHeight-10 );
-			renderer.setClearColor( 0x505050 );
+			renderer.setClearColor( 0x7E8F7C );
 			renderer.shadowMapEnabled = true;
 			renderer.shadowMapType = THREE.PCFSoftShadowMap;
 			document.body.appendChild( renderer.domElement );
 			sceneHandler.scene.add( camera );
+			
 			//Add stats bar in upper left corner of window
 			container = document.createElement( 'div' );
 			document.body.appendChild( container );
@@ -429,12 +417,9 @@
 			stats.domElement.style.left = '10%';
 			container.appendChild( stats.domElement );
 			
-			var x = document.createElement("INPUT");
-			x.setAttribute("type", "range");
-			
 			
 			//Declare object properties
-			var planeGeometry = new THREE.PlaneGeometry( 100, 100, 8, 8);
+			var planeGeometry = new THREE.PlaneGeometry( 100, 100, 4, 4);
 			var skyboxGeometry = new THREE.BoxGeometry( 100, 100, 100);
 			var groundMaterial = new THREE.MeshPhongMaterial( { color: 0x00ff00, specular: 0x990000, shininess: 10, shading: THREE.FlatShading } );
 			var skyboxMaterial = new THREE.MeshPhongMaterial( { map: THREE.ImageUtils.loadTexture('textures/Day_Skybox.png'), side: THREE.DoubleSide } );
@@ -518,7 +503,30 @@
 				var size = document.getElementById("TSslider").value/10;
 				var nodes = document.getElementById("TCslider").value*(4*Math.PI*Math.pow(size,3))/3;
 				
-				Trees[++numTrees] = new tree(0.2, 0.6, 0.7, nodes, size, new THREE.Vector3(10.0-20.0*Math.random(),-2.25, 10.0-20.0*Math.random()), height);
+				//Don't let trees spawn closer than 4 meters apart
+				var searching = true;
+				var pos = new THREE.Vector3(10.0-20.0*Math.random(),-2.25, 10.0-20.0*Math.random());				
+				while(numTrees >= 0 && searching) {
+					var testPos = new THREE.Vector3(10.0-20.0*Math.random(),-2.25, 10.0-20.0*Math.random());
+					var badPos = false;
+					var errCheck = 0;	//Reset if we haven't found a point after 10 iterations
+					for(var i = 0; i <= numTrees; i++) {
+						if(errCheck++ > 10) {
+							window.alert("Too many trees! \n\nResetting...");
+							reset();
+						}
+						var tempPos = new THREE.Vector3(testPos.x, testPos.y, testPos.z);
+						if(tempPos.sub(Trees[i].startPoint).length() < 4.0) {
+							badPos = true;
+						}
+					}
+					if(!badPos) {
+						pos.copy(testPos);
+						searching = false;
+					}
+				}
+				
+				Trees[++numTrees] = new tree(0.2, 0.6, 0.7, nodes, size, pos, height);
 				sceneHandler.scene.add( Trees[numTrees].base );
 			}
 			function reset() {
