@@ -1,14 +1,13 @@
-Author: Torsten Gustafsson. Linköpings Universitet.
+﻿Author: Torsten Gustafsson. Linköpings Universitet.
 Made for the course TNM084 - Procedurella metoder för bilder.
 
 
-Use this link to run the project: http://cdn.rawgit.com/torsten92/tnm084_treegeneration/54afeb4f7b2be2501bb8f8a069d432cad6508903/index.html
+Use this link to run the project: http://cdn.rawgit.com/torsten92/tnm084_treegeneration/b60e9cdb567448d72bbd85fb53c6bbfd322d5b9b/index.html
 
 
 Procedural tree generation.
 
-This application generates trees using the space colonisation algorihm (based on this article: http://algorithmicbotany.org/papers/colonization.egwnp2007.html)
-dynamically. Written in javascript using WebGL and THREE.js
+This application generates trees using the space colonisation algorihm (based on this article: http://algorithmicbotany.org/papers/colonization.egwnp2007.html) dynamically. Written in javascript using WebGL and THREE.js
 
 Because this application is written in javascript and are very demanding on the CPU, the browser might crash if too many and too big trees 
 are generated at once. Some simple error handlers have been implemented, for example if too many objects are in the scene at the same time, 
