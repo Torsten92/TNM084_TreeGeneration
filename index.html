@@ -15,7 +15,6 @@
 		</div>
 		<div class="instructions">
 			<p>Use the sliders to set tree parameters. When you are finished, press the "generate new tree" button to add a procedurally generated tree to the scene.</p>
-			<p>Try not to create too many big trees to avoid crashes!</p>
 			<div class="font80">This figure shows how height and width affect tree appearance</div>
 			<img src="textures/instructions.png" width="150" height="219">
 			<hr>
@@ -68,8 +67,6 @@
 		
 		<script src="js/threejs/three.min.js"></script>
 		<script src="js/threejs/libs/stats.min.js"></script>
-		<script src="js/threejs/three-tut.js"></script>
-		<script src="js/perlin.js"></script>
 		
 		<script src="js/cylinderInstance.js"></script>
 		<script src="js/tree.js"></script>
@@ -340,16 +337,21 @@
 			var stats, container;
 			var clock = new THREE.Clock();
 			var n = 0;
-			var cylinders = []; //old stuff
 			var spawnTime = 0, iterateTime = 0, winditerator = 0, lagiterator = 0;
 			var numTrees = -1;
-			var levelOfDetail = 10;
 			
+			//Create 10000 cylinder objects that is used for rendering
+			var cylinders = [];
+			var cylinderCounter = 0;
+			for(var i = 0; i < 10000; i++) {
+				cylinders[i] = new cylinderInstance();
+			}
+
 			function render() {			
 				
-				//iterate every (1/levelOfDetail) second (0.1-0.25)
-				if(numTrees >= 0 && clock.getElapsedTime() - iterateTime > (1/levelOfDetail)) {
-					iterateTime += 1/levelOfDetail;
+				//iterate every 0.2 second
+				if(numTrees >= 0 && clock.getElapsedTime() - iterateTime > 0.2) {
+					iterateTime += 0.2;
 					for(var i = 0; i <= numTrees; i++) {
 						Trees[i].updateBranches();
 					}

@@ -68,7 +68,10 @@ function tree(_D, _dk, _di, _N, _attractionRadius, _startPoint, _height) {
 		this.attractionPoints[i].z = this.startPoint.z + this.attractionRadius * Math.random() * Math.sin(theta) * Math.sin(phi);
 	}
 	this.treeNodes[0] = new THREE.Vector3(_startPoint.x, _startPoint.y, _startPoint.z);
-	this.branches[0] = new cylinderInstance(this.startPoint, this.treeNodes[0], 0, new THREE.Vector3(0.0, 1.0, 0.0), this.treeNodes.length - 1);
+	cylinders[cylinderCounter++].init(this.startPoint, this.treeNodes[0], 0, new THREE.Vector3(0.0, 1.0, 0.0), this.treeNodes.length - 1);
+	cylinderCounter = cylinderCounter > 9999 ? 0 : cylinderCounter;
+	this.branches[0] = cylinders[cylinderCounter-1];
+
 	this.hashMap[key(this.branches[0])] = this.branches[0];
 
 	this.base.position.copy(_startPoint);
@@ -122,7 +125,9 @@ tree.prototype.iterate = function () {
 				this.treeNodes[this.treeNodes.length] = tempPos;
 
 				//Create a new branch and add it to the hashMap. Then add that branch as a child to the current branch
-				this.branches[this.numBranches++] = new cylinderInstance(this.hashMap[i].top, this.treeNodes[this.treeNodes.length - 1], ++this.iteration, this.hashMap[i].direction, this.treeNodes.length - 1);
+				cylinders[cylinderCounter++].init(this.hashMap[i].top, this.treeNodes[this.treeNodes.length - 1], ++this.iteration, this.hashMap[i].direction, this.treeNodes.length - 1);
+				cylinderCounter = cylinderCounter > 9999 ? 0 : cylinderCounter;
+				this.branches[this.numBranches++] = cylinders[cylinderCounter-1];
 
 				//var tempDir = new THREE.Vector3(this.hashMap[i].direction.x, this.hashMap[i].direction.y, this.hashMap[i].direction.z);
 				this.branches[this.numBranches - 1].mesh.position.set(0, this.D, 0);
@@ -137,7 +142,10 @@ tree.prototype.iterate = function () {
 		if (this.treeNodes.length == 1) {
 			this.treeNodes[0].y += this.D; //Move node upwards if it didn't start
 			
-			this.branches[this.numBranches++] = new cylinderInstance(new THREE.Vector3(this.treeNodes[0].x, this.treeNodes[0].y-this.D, this.treeNodes[0].z), this.treeNodes[0], ++this.iteration, new THREE.Vector3(0, this.D, 0), 0);
+			cylinders[cylinderCounter++].init(new THREE.Vector3(this.treeNodes[0].x, this.treeNodes[0].y-this.D, this.treeNodes[0].z), this.treeNodes[0], ++this.iteration, new THREE.Vector3(0, this.D, 0), 0);
+			cylinderCounter = cylinderCounter > 9999 ? 0 : cylinderCounter;
+			this.branches[this.numBranches++] = cylinders[cylinderCounter-1];
+
 			this.branches[this.numBranches - 1].mesh.position.set(0, this.D, 0);
 			this.hashMap[key(this.branches[this.numBranches - 1])] = this.branches[this.numBranches - 1];
 			this.branches[this.numBranches - 2].mesh.add(this.branches[this.numBranches - 1].mesh);
