@@ -2,7 +2,7 @@
 Made for the course TNM084 - Procedurella metoder för bilder.
 
 
-Use this link to run the project: http://cdn.rawgit.com/torsten92/tnm084_treegeneration/b60e9cdb567448d72bbd85fb53c6bbfd322d5b9b/index.html
+Use this link to run the project: http://cdn.rawgit.com/torsten92/tnm084_treegeneration/master/index.html
 
 
 Procedural tree generation.
